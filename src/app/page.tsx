@@ -18,7 +18,7 @@ import {
   getGlobalPrayerCount, 
   setGlobalPrayerCount
 } from "@/lib/storage";
-import { prayerCountAPI } from "@/lib/api";
+import { prayerCountAPI, setupEventListeners } from "@/lib/api";
 
 export default function HomePage() {
   const [prayerData, setPrayerData] = useState<PrayerData>({
@@ -30,12 +30,18 @@ export default function HomePage() {
     userId: ''
   });
   const [totalGlobalCount, setTotalGlobalCount] = useState(0);
+  const [isClient, setIsClient] = useState(false);
   // const [showCelebration, setShowCelebration] = useState(false);
   // const [celebrationMessage, setCelebrationMessage] = useState("");
   // const [isFirstTime, setIsFirstTime] = useState(false);
 
   // Load saved counts on component mount
   useEffect(() => {
+    setIsClient(true);
+    
+    // Setup event listeners for API sync
+    setupEventListeners();
+    
     const initializeData = async () => {
       // Load user data
       const data = getStoredPrayerData();
@@ -77,36 +83,19 @@ export default function HomePage() {
       // Add to pending increments for later sync
       prayerCountAPI.addPendingIncrement(1);
     }
-
-    // Show celebration for milestones
-    // let message = "";
-    // if (newData.totalCount % 1000 === 0) {
-    //   message = `مبارك! وصلت إلى ${newData.totalCount.toLocaleString('en-US')} صلاة! 👑`;
-    // } else if (newData.totalCount % 500 === 0) {
-    //   message = `رائع! ${newData.totalCount.toLocaleString('en-US')} صلاة! ✨`;
-    // } else if (newData.totalCount % 100 === 0) {
-    //   message = `ممتاز! ${newData.totalCount.toLocaleString('en-US')} صلاة! 🌟`;
-    // } else if (newData.dailyCount % 50 === 0) {
-    //   message = `بارك الله فيك! ${newData.dailyCount.toLocaleString('en-US')} صلاة اليوم! 💚`;
-    // } else if (newData.dailyCount % 10 === 0) {
-    //   message = `استمر! ${newData.dailyCount.toLocaleString('en-US')} صلاة اليوم! 🌱`;
-    // }
-
-    // if (message) {
-    //   setCelebrationMessage(message);
-    //   setShowCelebration(true);
-    //   setTimeout(() => setShowCelebration(false), 3000);
-    // }
-
-    // Show save confirmation for first few prayers
-    // if (newData.totalCount <= 5) {
-    //   setTimeout(() => {
-    //     setCelebrationMessage("✅ تم حفظ تقدمك تلقائياً");
-    //     setShowCelebration(true);
-    //     setTimeout(() => setShowCelebration(false), 2000);
-    //   }, 1000);
-    // }
   };
+
+  // Show a simple loading state on the server, and the full app on the client
+  if (!isClient) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto"></div>
+          <p className="mt-4 text-emerald-700">جارٍ تحميل حملة الصلاة على النبي...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen">
@@ -115,7 +104,7 @@ export default function HomePage() {
         <div className="container mx-auto text-center max-w-4xl">
           {/* Main Title */}
           <div className="mb-6">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-emerald-800 mb-4 font-amiri whitespace-nowrap overflow-hidden text-ellipsis">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-emerald-800 mb-4 font-amiri">
               حملة الصلاة على النبي
             </h1>
             <div className="w-32 h-1 bg-gradient-to-r from-emerald-600 to-amber-500 mx-auto mb-4"></div>

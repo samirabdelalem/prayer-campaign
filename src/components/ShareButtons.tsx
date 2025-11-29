@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -9,15 +10,22 @@ interface ShareButtonsProps {
 }
 
 export default function ShareButtons({ prayerCount }: ShareButtonsProps) {
+  const [origin, setOrigin] = useState('');
+
+  useEffect(() => {
+    // Set origin on client side only
+    setOrigin(typeof window !== 'undefined' ? window.location.origin : '');
+  }, []);
+
   const shareText = `🕌 انضم إلي في حملة الصلاة على النبي محمد صلى الله عليه وسلم
 
 ✨ وصلت إلى ${prayerCount.toLocaleString('en-US')} صلاة
 "إِنَّ اللَّهَ وَمَلَائِكَتَهُ يُصَلُّونَ عَلَى النَّبِيِّ
 
-انضم الآن: ${typeof window !== 'undefined' ? window.location.origin : ''}`;
+انضم الآن: ${origin}`;
 
   const handleShare = async (platform?: string) => {
-    const url = typeof window !== 'undefined' ? window.location.origin : '';
+    const url = origin;
     
     if (platform === 'whatsapp') {
       window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, '_blank');

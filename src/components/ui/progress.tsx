@@ -10,6 +10,20 @@ function Progress({
   value,
   ...props
 }: React.ComponentProps<typeof ProgressPrimitive.Root>) {
+  // Determine direction on client side only
+  const getTransformStyle = (value: number | null | undefined) => {
+    // Handle null or undefined values
+    const numericValue = value ?? 0;
+    
+    if (typeof window === 'undefined') {
+      // Server-side fallback - default to LTR
+      return `translateX(-${100 - numericValue}%)`;
+    }
+    
+    // Client-side - check document direction
+    return `translateX(${document.documentElement.dir === 'rtl' ? '' : '-'}${100 - numericValue}%)`;
+  };
+
   return (
     <ProgressPrimitive.Root
       data-slot="progress"
@@ -23,7 +37,7 @@ function Progress({
         data-slot="progress-indicator"
         className="bg-primary h-full w-full flex-1 transition-all"
         style={{ 
-          transform: `translateX(${typeof document !== 'undefined' && document.documentElement.dir === 'rtl' ? '' : '-'}${100 - (value || 0)}%)` 
+          transform: getTransformStyle(value)
         }}
       />
     </ProgressPrimitive.Root>

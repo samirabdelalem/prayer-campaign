@@ -52,6 +52,34 @@ export default function DatePanel() {
     return () => clearInterval(interval);
   }, []);
 
+  // Render nothing on the server, and the actual component on the client
+  if (!isClient) {
+    return (
+      <div className="bg-gradient-to-r from-emerald-50 to-amber-50 border border-emerald-200 rounded-xl shadow-md p-3">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-2">
+          <div className="text-center md:text-right">
+            <div className="text-xs text-emerald-600 font-medium"></div>
+            <div className="text-emerald-800 font-bold text-sm">00/00/0000</div>
+          </div>
+          
+          <div className="hidden md:block w-px h-8 bg-emerald-200"></div>
+          
+          <div className="text-center md:text-left">
+            <div className="text-xs text-amber-600 font-medium"></div>
+            <div className="text-amber-800 font-bold text-sm">00/00/0000</div>
+          </div>
+          
+          <div className="hidden md:block w-px h-8 bg-emerald-200"></div>
+          
+          <div className="text-center">
+            <div className="text-xs text-blue-600 font-medium"></div>
+            <div className="text-blue-800 font-bold text-sm">00:00:00 ص</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-gradient-to-r from-emerald-50 to-amber-50 border border-emerald-200 rounded-xl shadow-md p-3">
       <div className="flex flex-col md:flex-row justify-between items-center gap-2">

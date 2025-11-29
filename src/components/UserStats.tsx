@@ -13,12 +13,17 @@ export default function UserStats({ globalCount }: { globalCount: number }) {
     userId: ''
   });
   const [daysSinceJoining, setDaysSinceJoining] = useState(0);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
+    setIsClient(true);
+    
     const userStats = getUserStats();
     // Remove globalTotal from userStats since we're getting it from props
     const { globalTotal, ...localStats } = userStats;
     setStats(localStats as any);
+    
+    // Calculate days since joining on the client side only
     const days = getDaysSinceJoining();
     setDaysSinceJoining(days);
   }, []);
@@ -59,6 +64,86 @@ export default function UserStats({ globalCount }: { globalCount: number }) {
     
     return `${arabicDay} ${arabicMonth} ${year}`;
   };
+
+  // Render placeholder on server, actual component on client
+  if (!isClient) {
+    return (
+      <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+        <CardContent className="p-3">
+          <div className="flex justify-between items-center mb-2">
+            <h3 className="text-sm font-bold text-blue-800">
+              إحصائياتك الشخصية
+            </h3>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2 mb-2">
+            <div className="text-center">
+              <div className="text-lg font-bold text-blue-700">
+                0
+              </div>
+              <div className="text-xs text-blue-600">إجمالي صلواتك</div>
+            </div>
+            
+            <div className="text-center">
+              <div className="text-lg font-bold text-blue-700">
+                0
+              </div>
+              <div className="text-xs text-blue-600">صلوات اليوم</div>
+            </div>
+          </div>
+
+          <div className="space-y-1 pt-2 border-t border-blue-200">
+            <div className="flex justify-between text-xs">
+              <span className="text-blue-600">تاريخ الانضمام:</span>
+              <span className="text-blue-800 font-medium">
+                00/00/0000
+              </span>
+            </div>
+            
+            <div className="flex justify-between text-xs">
+              <span className="text-blue-600">الأيام منذ الانضمام:</span>
+              <span className="text-blue-800 font-medium">
+                0 يوم
+              </span>
+            </div>
+            
+            <div className="flex justify-between text-xs">
+              <span className="text-blue-600">متوسط الصلوات يومياً:</span>
+              <span className="text-blue-800 font-medium">
+                0 صلاة
+              </span>
+            </div>
+            
+            <div className="flex justify-between text-xs">
+              <span className="text-blue-600">الإنجازات المحققة:</span>
+              <span className="text-blue-800 font-medium">
+                0 إنجاز
+              </span>
+            </div>
+
+            <div className="bg-blue-100 p-1 rounded-lg mt-2">
+              <p className="text-xs text-blue-700 text-center">
+                🔒 بياناتك محفوظة محلياً
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-2 space-y-1">
+            <div className="flex justify-between text-xs text-blue-600">
+              <span>التقدم نحو 1000 صلاة</span>
+              <span>0/1000</span>
+            </div>
+            <div className="w-full bg-blue-200 rounded-full h-1">
+              <div 
+                className="bg-blue-600 h-1 rounded-full transition-all duration-500"
+                style={{ width: `0%` }}
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">

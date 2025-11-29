@@ -38,9 +38,12 @@ export const prayerCountAPI = {
       }
     } catch (error) {
       console.error('Error fetching global prayer count:', error);
-      // Return cached count from localStorage as fallback
-      const cached = localStorage.getItem('cachedGlobalCount');
-      return cached ? parseInt(cached) : 0;
+      // Return cached count from localStorage as fallback, but only on client
+      if (typeof window !== 'undefined') {
+        const cached = localStorage.getItem('cachedGlobalCount');
+        return cached ? parseInt(cached) : 0;
+      }
+      return 0;
     }
   },
 
@@ -63,30 +66,41 @@ export const prayerCountAPI = {
       const data: GlobalPrayerResponse = await response.json();
       
       if (data.success) {
-        // Cache the result locally
-        localStorage.setItem('cachedGlobalCount', data.globalCount.toString());
-        localStorage.setItem('lastGlobalUpdate', new Date().toISOString());
+        // Cache the result locally, but only on client
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('cachedGlobalCount', data.globalCount.toString());
+          localStorage.setItem('lastGlobalUpdate', new Date().toISOString());
+        }
         return data.globalCount;
       } else {
         console.error('API Error:', data.error);
-        // Fallback: increment local cache
+        // Fallback: increment local cache, but only on client
+        if (typeof window !== 'undefined') {
+          const cached = localStorage.getItem('cachedGlobalCount');
+          const newCount = (cached ? parseInt(cached) : 0) + increment;
+          localStorage.setItem('cachedGlobalCount', newCount.toString());
+          return newCount;
+        }
+        return increment;
+      }
+    } catch (error) {
+      console.error('Error incrementing global prayer count:', error);
+      // Fallback: increment local cache, but only on client
+      if (typeof window !== 'undefined') {
         const cached = localStorage.getItem('cachedGlobalCount');
         const newCount = (cached ? parseInt(cached) : 0) + increment;
         localStorage.setItem('cachedGlobalCount', newCount.toString());
         return newCount;
       }
-    } catch (error) {
-      console.error('Error incrementing global prayer count:', error);
-      // Fallback: increment local cache
-      const cached = localStorage.getItem('cachedGlobalCount');
-      const newCount = (cached ? parseInt(cached) : 0) + increment;
-      localStorage.setItem('cachedGlobalCount', newCount.toString());
-      return newCount;
+      return increment;
     }
   },
 
   // Sync local changes with server (for offline support)
   async syncPendingIncrements(): Promise<void> {
+    // Only run on client
+    if (typeof window === 'undefined') return;
+    
     try {
       const pending = localStorage.getItem('pendingIncrements');
       if (pending) {
@@ -103,6 +117,9 @@ export const prayerCountAPI = {
 
   // Add to pending increments (for offline support)
   addPendingIncrement(increment: number = 1): void {
+    // Only run on client
+    if (typeof window === 'undefined') return;
+    
     const current = localStorage.getItem('pendingIncrements');
     const newTotal = (current ? parseInt(current) : 0) + increment;
     localStorage.setItem('pendingIncrements', newTotal.toString());
@@ -110,6 +127,9 @@ export const prayerCountAPI = {
 
   // Check if online and sync if needed
   async checkAndSync(): Promise<void> {
+    // Only run on client
+    if (typeof window === 'undefined') return;
+    
     if (navigator.onLine) {
       await this.syncPendingIncrements();
     }
@@ -117,13 +137,22 @@ export const prayerCountAPI = {
 };
 
 // Auto-sync when coming back online
-if (typeof window !== 'undefined') {
-  window.addEventListener('online', () => {
-    prayerCountAPI.checkAndSync();
-  });
+const setupEventListeners = () => {
+  if (typeof window !== 'undefined') {
+    window.addEventListener('online', () => {
+      prayerCountAPI.checkAndSync();
+    });
 
-  // Sync on page load
-  window.addEventListener('load', () => {
-    prayerCountAPI.checkAndSync();
-  });
+    // Sync on page load
+    window.addEventListener('load', () => {
+      prayerCountAPI.checkAndSync();
+    });
+  }
+};
+
+// Only setup event listeners on the client side
+if (typeof window !== 'undefined') {
+  setupEventListeners();
 }
+
+export { setupEventListeners };
