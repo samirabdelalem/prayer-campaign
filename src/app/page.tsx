@@ -115,7 +115,7 @@ export default function HomePage() {
         <div className="container mx-auto text-center max-w-4xl">
           {/* Main Title */}
           <div className="mb-6">
-            <h1 className="text-4xl md:text-5xl font-bold text-emerald-800 mb-4 font-amiri">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-emerald-800 mb-4 font-amiri whitespace-nowrap overflow-hidden text-ellipsis">
               حملة الصلاة على النبي
             </h1>
             <div className="w-32 h-1 bg-gradient-to-r from-emerald-600 to-amber-500 mx-auto mb-4"></div>
@@ -178,7 +178,7 @@ export default function HomePage() {
                 />
               </div>
               <div>
-                <UserStats />
+                <UserStats globalCount={totalGlobalCount} />
               </div>
             </div>
           </div>

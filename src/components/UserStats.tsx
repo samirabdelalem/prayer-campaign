@@ -2,13 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
-import { getDaysSinceJoining, getUserStats } from "@/lib/storage";
+import { getDaysSinceJoining, getUserStats, getStoredPrayerData } from "@/lib/storage";
 
-export default function UserStats() {
+export default function UserStats({ globalCount }: { globalCount: number }) {
   const [stats, setStats] = useState({
     personalTotal: 0,
     dailyCount: 0,
-    globalTotal: 0,
     joinDate: '',
     achievements: [] as string[],
     userId: ''
@@ -17,9 +16,10 @@ export default function UserStats() {
 
   useEffect(() => {
     const userStats = getUserStats();
+    // Remove globalTotal from userStats since we're getting it from props
+    const { globalTotal, ...localStats } = userStats;
+    setStats(localStats as any);
     const days = getDaysSinceJoining();
-    
-    setStats(userStats);
     setDaysSinceJoining(days);
   }, []);
 

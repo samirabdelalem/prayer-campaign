@@ -3,42 +3,46 @@
 import { useState, useEffect } from "react";
 import moment from "moment-hijri";
 
-export default function DatePanel() {
-  const [currentDate, setCurrentDate] = useState({
-    gregorian: "",
-    hijri: "",
-    time: ""
+// Helper function to get initial date values
+const getInitialDates = () => {
+  const now = new Date();
+  
+  // Format Gregorian date in numeric format (day/month/year)
+  const gregorianDate = now.toLocaleDateString('en-US', {
+    day: 'numeric',
+    month: 'numeric',
+    year: 'numeric'
   });
+  
+  // Format Hijri date in numeric format (day/month/year)
+  const hijriDateFormatted = moment(now).format('iDD/iMM/iYYYY');
+  
+  // Format time in English with Arabic morning/evening (short form)
+  const hours = now.getHours();
+  const period = hours >= 12 ? 'م' : 'ص';
+  const timeFormatted = now.toLocaleTimeString('en-US', {
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  }) + ' ' + period;
+  
+  return {
+    gregorian: gregorianDate,
+    hijri: hijriDateFormatted,
+    time: timeFormatted
+  };
+};
+
+export default function DatePanel() {
+  const [currentDate, setCurrentDate] = useState(getInitialDates);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
+    setIsClient(true);
+    
     const updateDates = () => {
-      const now = new Date();
-      
-      // Format Gregorian date in numeric format (day/month/year)
-      const gregorianDate = now.toLocaleDateString('en-US', {
-        day: 'numeric',
-        month: 'numeric',
-        year: 'numeric'
-      });
-      
-      // Format Hijri date in numeric format (day/month/year)
-      const hijriDateFormatted = moment(now).format('iDD/iMM/iYYYY');
-      
-      // Format time in English with Arabic morning/evening (short form)
-      const hours = now.getHours();
-      const period = hours >= 12 ? 'م' : 'ص';
-      const timeFormatted = now.toLocaleTimeString('en-US', {
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: false
-      }) + ' ' + period;
-      
-      setCurrentDate({
-        gregorian: gregorianDate,
-        hijri: hijriDateFormatted,
-        time: timeFormatted
-      });
+      setCurrentDate(getInitialDates());
     };
 
     updateDates();
