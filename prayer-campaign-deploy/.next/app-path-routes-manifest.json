@@ -1,0 +1,7 @@
+{
+  "/_not-found/page": "/_not-found",
+  "/api/kv-test/route": "/api/kv-test",
+  "/api/prayer-count-kv/route": "/api/prayer-count-kv",
+  "/api/prayer-count/route": "/api/prayer-count",
+  "/page": "/"
+}
